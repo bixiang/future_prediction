@@ -89,6 +89,10 @@ def gen_rt_db(topn, datpath):
         if df.shape[0] != 0:
             df[['CJ1', 'CJ1_CHG', 'CJ2', 'CJ2_CHG','CJ3', 'CJ3_CHG']] = df[['CJ1', 'CJ1_CHG', 'CJ2', 'CJ2_CHG','CJ3', 'CJ3_CHG']].applymap(lambda x: str(x).replace(',','')).apply(pd.to_numeric)
 
+
+    bix = df.groupby(['PARTICIPANTABBR1', 'PARTICIPANTABBR2', 'PARTICIPANTABBR3']).agg({'CJ1': 'sum', 'CJ2': 'sum', 'CJ3': 'sum'})
+    print(bix)
+
     # 前n名的量和公司id
     CJ1top = df.groupby('PARTICIPANTABBR1', as_index=False).agg({'CJ1':'sum'}).sort_values(ascending=False, by='CJ1').head(topn).reset_index(drop=True)
     CJ1_CHGtop = df.groupby('PARTICIPANTABBR1', as_index=False).agg({'CJ1_CHG':'sum'}).sort_values(ascending=False, by='CJ1_CHG').head(topn).reset_index(drop=True)
@@ -179,6 +183,7 @@ def gener_traindata(filepath):
     for f in os.listdir(filepath):
         print(f)
         part_train_data.append(gen_rt_db(3, os.path.join(filepath, f)))
+        break
     part_final_result = pd.DataFrame(part_train_data)
     t = part_final_result.pop('data_time')
     part_final_result.insert(0, 'data_time', t)
@@ -231,13 +236,13 @@ def id_onehot(df, interupt_date):
 if __name__ == '__main__':
     # get_datfile('2018/04/01', '2018/05/21', 'j', 'da')
     # exit()
-    part_final_result = gener_traindata(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'rb_datdata'))
-    # part_final_result = gener_traindata(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'i_xlsdata'))
+    # part_final_result = gener_traindata(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'rb_datdata'))
+    part_final_result = gener_traindata(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'i_xlsdata'))
     sentiment_result = handle_senti()
     final_train = pd.merge(part_final_result, sentiment_result, on='data_time', how='outer').sort_values(ascending=True, by='data_time')
     # final_train = id_onehot(final_train,'2015-01-01')
     # final_train = pd.merge(pd.read_csv('FutrueSentiment.csv')[['data_time','DEA', 'EMA5']], final_train, on='data_time', how='outer')
 
-    final_train.to_csv('traindata_full.csv',index=False)
+    # final_train.to_csv('traindata_full.csv',index=False)
     # handle_for_lstm(5)
     # gen_rt_db(5, 'shfe20180410.dat')

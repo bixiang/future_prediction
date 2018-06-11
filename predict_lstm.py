@@ -40,11 +40,11 @@ import tensorflow as tf
 from keras import backend as K
 from keras.optimizers import SGD
 from sklearn import cross_validation,metrics
-# session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
-# tf.set_random_seed(2)
+session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
+tf.set_random_seed(2)
 
-# sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
-# K.set_session(sess)
+sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
+K.set_session(sess)
 
 from keras import backend as K
 import numpy as np
@@ -73,7 +73,7 @@ batch_size = 128
 print('Build model...')
 model = Sequential()
 model.add(LSTM(units=64, input_shape=(x_train.shape[1], x_train.shape[2]),return_sequences=True))
-model.add(LSTM(units=50, input_shape=(x_train.shape[1], x_train.shape[2])))
+model.add(LSTM(units=50))
 # model.add(Dropout(0.5))
 model.add(Dense(units=1))
 # model.add(Activation('sigmoid'))
